@@ -43,6 +43,7 @@ def calculateAverage():
 
 
 def compareToAverage():
+
     print("--OUTLIERS--")
     for id in userData:
         for question in userData[id]:
