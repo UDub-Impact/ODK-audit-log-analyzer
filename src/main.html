@@ -2,13 +2,21 @@
 <html>
   <head>
     <script src="main.js"></script>
+    <script src="../lib/d3/d3.js"></script>
     <title>Audit Log Tool</title>
   </head>
 
   <body>
-    <img src="../impact_logo.png" style="float:left; padding-right:10px" height="115"></img>
-    <h1 style="font-family:Arial">Analyze Audit Logs</h1>
-    <p id="demo">Client-side web tool to analyze ODK audit logs</p>
-    <button onclick="getAndProcessAuditData()">Open</button>
+    <div>
+      <img src="../impact_logo.png" style="float:left; padding-right:10px" height="115"></img>
+      <h1 style="font-family:Arial">Analyze Audit Logs</h1>
+      <p id="demo">Client-side web tool to analyze ODK audit logs.</p>
+      <button onclick="getAndProcessAuditData()">Open</button>
+    </div>
+
+    <div>
+      <h3 style="font-family:Arial" hidden="true">Average Response Time Per Question</h1>
+      <div id="average-question-time" style="padding-top:50px"></div>
+    </div>
   </body>
 </html>
