@@ -2,21 +2,24 @@
 <html>
   <head>
     <script src="main.js"></script>
-    <script src="../lib/d3/d3.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"></script>
     <title>Audit Log Tool</title>
   </head>
 
   <body>
-    <div>
-      <img src="../impact_logo.png" style="float:left; padding-right:10px" height="115"></img>
+    <div class="header" style="background-color: #f1f1f1; padding-top: 20px; padding-bottom: 10px;">
+      <img src="../impact_logo.png" style="float:left; padding-right:10px; padding-top: 20px" height="115"></img>
       <h1 style="font-family:Arial">Analyze Audit Logs</h1>
-      <p id="demo">Client-side web tool to analyze ODK audit logs.</p>
+      <p style="font-family: Verdana">Client-side web tool to analyze ODK audit logs.</p>
       <button onclick="getAndProcessAuditData()">Open</button>
     </div>
 
-    <div>
-      <h3 style="font-family:Arial" hidden="true">Average Response Time Per Question</h1>
-      <div id="average-question-time" style="padding-top:50px"></div>
+    <div class="charts" style="padding-top: 10px;">
+      <div id="average-question-time" style="padding-top: 40px; float: left; clear: both; width: 50%"></div>
+      <div id="average-question-changes" style="padding-top: 20px; float: left; clear: both; width: 50%"></div> 
     </div>
   </body>
 </html>
