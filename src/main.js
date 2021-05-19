@@ -3,7 +3,20 @@
 var groupedAuditData;
 
 // list of all tags used in show...() functions
-var chartTags = ["average-question-time", "average-question-changes"];
+const chartTags = ["average-question-time", "average-question-changes"];
+
+// dictionary mapping chart tags to the chart names that should be used
+const chartNames = {
+	"average-question-time": "Average Time Spent Responding Per Question",
+	"average-question-changes": "Average Number of Response Changes Per Question",
+}
+
+// dictionary mapping chart tags to their descriptions
+// TODO: add meaningful descriptions
+const chartDescriptions = {
+	"average-question-time": "Sample description 1",
+	"average-question-changes": "Sample description 2",
+}
 
 // Creates input element that allows user to select audit file and analyzes selected file
 // Sets groupedAuditData variable
@@ -54,8 +67,10 @@ function showAverageQuestionTimes() {
 	// each question across submissions
 	let averageQuestionTimes = calculateAverageQuestionValues(groupedSubmissionTimes);
 
+	const tag = "average-question-time";
+
 	let vegaSpec = {
-		title: "Average Time Spent Responding Per Question",
+		title: chartNames[tag],
 		width: "container",
 		data: {
 			values: averageQuestionTimes,
@@ -72,7 +87,7 @@ function showAverageQuestionTimes() {
 		},
 	};
 
-	vegaEmbed("#average-question-time", vegaSpec);
+	vegaEmbed("#" + tag, vegaSpec);
 }
 
 // Displays average question changes in a bar chart in the element with id "average-question-changes"
@@ -81,8 +96,10 @@ function showAverageQuestionChanges() {
 	let groupedSubmissionQuestionChanges = reduceSubmissionQuestions(groupedAuditData, calculateQuestionChanges);
 	let averageQuestionChanges = calculateAverageQuestionValues(groupedSubmissionQuestionChanges);
 
+	const tag = "average-question-changes";
+
 	let vegaSpec = {
-		title: "Average Number of Response Changes Per Question",
+		title: chartNames[tag],
 		width: "container",
 		data: {
 			values: averageQuestionChanges,
@@ -99,7 +116,7 @@ function showAverageQuestionChanges() {
 		},
 	};
 
-	vegaEmbed("#average-question-changes", vegaSpec);
+	vegaEmbed("#" + tag, vegaSpec);
 }
 
 // Takes a list of dictionaries with each dictionary corresponding to an event of an ODK audit file
