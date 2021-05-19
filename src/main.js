@@ -1,4 +1,13 @@
+// groupedAuditData stored in the format specified by groupAuditData()
+// Set by calling getAndProcessAuditData() which then allows visualisations to be displayed with show...() functions
+var groupedAuditData;
+
+// list of all tags used in show...() functions
+var chartTags = ["average-question-time", "average-question-changes"];
+
 // Creates input element that allows user to select audit file and analyzes selected file
+// Sets groupedAuditData variable
+// Clears the contents of all tags in chartTags so that old visualizations won't stick around when we change the dataset
 function getAndProcessAuditData() {
   	let input = document.createElement('input');
   	input.type = 'file';
@@ -15,35 +24,82 @@ function getAndProcessAuditData() {
     	// read file and output content
     	reader.onload = readerEvent => {
     		auditStr = readerEvent.target.result;
-      		processAuditFile(auditStr);
+
+			// auditData is a list of dictionaries s.t. each dictionary represents a row of the original audit CSV data
+			let auditData = d3.csvParse(auditStr);
+
+			// rows of the original CSV audit have events from many different submissions jumbled together
+			// this function groups all events by submission
+			// this gives us a dictionary that maps submission id to events for that submission
+			groupedAuditData = groupAuditData(auditData);
+
+			// clear current visualizations
+			for (const tag of chartTags) {
+				const node = document.getElementById(tag);
+				node.innerHTML = '';
+			}
     	}
     }
 
 	input.click();
 }
 
-// Takes String contents of CSV audit file, parses and processes it, and updates page to show insights
-function processAuditFile(auditStr) {
-	// auditData is a list of dictionaries s.t. each dictionary represents a row of the original audit CSV data
-	let auditData = d3.csvParse(auditStr);
-
-	// rows of the original CSV audit have events from many different submissions jumbled together
-	// this function groups all events by submission
-	// this gives us a dictionary that maps submission id to events for that submission
-	let groupedData = groupAuditData(auditData);
-
+// Displays average question times in a bar chart in the element with id "average-question-time"
+// Should only be called after getAndProcessAuditData()
+function showAverageQuestionTimes() {
 	// the first function here keeps the data in a similar format to groupedData but maps question names to
 	// the time spent responding to that question (rather than a list of events)
-	let groupedSubmissionTimes = reduceSubmissionQuestions(groupedData, calculateQuestionTime);
+	let groupedSubmissionTimes = reduceSubmissionQuestions(groupedAuditData, calculateQuestionTime);
 	// this function takes submission ids out of the picture and calculates the average time spent responding to
 	// each question across submissions
 	let averageQuestionTimes = calculateAverageQuestionValues(groupedSubmissionTimes);
 
-	let groupedSubmissionQuestionChanges = reduceSubmissionQuestions(groupedData, calculateQuestionChanges);
+	let vegaSpec = {
+		title: "Average Time Spent Responding Per Question",
+		width: "container",
+		data: {
+			values: averageQuestionTimes,
+		},
+		mark: "bar",
+		encoding: {
+			x: {
+				title: "Question", field: "node", type: "nominal",
+				axis: {
+					labelAngle: 0,
+				},
+			},
+			y: {title: "Average Response Time", field: "value", type: "quantitative"},
+		},
+	};
+
+	vegaEmbed("#average-question-time", vegaSpec);
+}
+
+// Displays average question changes in a bar chart in the element with id "average-question-changes"
+// Should only be called after getAndProcessAuditData()
+function showAverageQuestionChanges() {
+	let groupedSubmissionQuestionChanges = reduceSubmissionQuestions(groupedAuditData, calculateQuestionChanges);
 	let averageQuestionChanges = calculateAverageQuestionValues(groupedSubmissionQuestionChanges);
 
-	showAverageQuestionTimes(averageQuestionTimes);
-	showAverageQuestionChanges(averageQuestionChanges);
+	let vegaSpec = {
+		title: "Average Number of Response Changes Per Question",
+		width: "container",
+		data: {
+			values: averageQuestionChanges,
+		},
+		mark: "bar",
+		encoding: {
+			x: {
+				title: "Question", field: "node", type: "nominal",
+				axis: {
+					labelAngle: 0,
+				},
+			},
+			y: {title: "Average Response Changes", field: "value", type: "quantitative"},
+		},
+	};
+
+	vegaEmbed("#average-question-changes", vegaSpec);
 }
 
 // Takes a list of dictionaries with each dictionary corresponding to an event of an ODK audit file
@@ -160,52 +216,4 @@ function calculateQuestionChanges(events) {
 	}
 
 	return totalChanges;
-}
-
-// Takes average question times in the format returned by calculateAverageQuestionValues
-// Displays average question times in a bar chart
-function showAverageQuestionTimes(averageQuestionTimes) {
-	let vegaSpec = {
-		title: "Average Time Spent Responding Per Question",
-		width: "container",
-		data: {
-			values: averageQuestionTimes,
-		},
-		mark: "bar",
-		encoding: {
-			x: {
-				title: "Question", field: "node", type: "nominal",
-				axis: {
-					labelAngle: 0,
-				},
-			},
-			y: {title: "Average Response Time", field: "value", type: "quantitative"},
-		},
-	};
-
-	vegaEmbed("#average-question-time", vegaSpec);
-}
-
-// Takes average question changes in the format returned by calculateAverageQuestionValues
-// Displays average question changes in a bar chart
-function showAverageQuestionChanges(averageQuestionChanges) {
-	let vegaSpec = {
-		title: "Average Number of Response Changes Per Question",
-		width: "container",
-		data: {
-			values: averageQuestionChanges,
-		},
-		mark: "bar",
-		encoding: {
-			x: {
-				title: "Question", field: "node", type: "nominal",
-				axis: {
-					labelAngle: 0,
-				},
-			},
-			y: {title: "Average Response Changes", field: "value", type: "quantitative"},
-		},
-	};
-
-	vegaEmbed("#average-question-changes", vegaSpec);
 }
