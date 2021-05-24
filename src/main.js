@@ -3,19 +3,28 @@
 var groupedAuditData;
 
 // list of all tags used in show...() functions
-const chartTags = ["average-question-time", "average-question-changes"];
+const chartTags = ["average-question-time", "average-question-changes", "submission-times"];
 
 // dictionary mapping chart tags to the chart names that should be used
 const chartNames = {
 	"average-question-time": "Average Time Spent Responding Per Question",
 	"average-question-changes": "Average Number of Response Changes Per Question",
+	"submission-times": "Time Spent Responding Per Submission",
 }
 
 // dictionary mapping chart tags to their descriptions
 // TODO: add meaningful descriptions
 const chartDescriptions = {
-	"average-question-time": "Sample description 1",
-	"average-question-changes": "Sample description 2",
+	"average-question-time":
+		"This bar chart shows the average time spent responding to each question across submissions." +
+		"This is the total time that the question has been selected across all submissions divided by the number of submissions that selected the question.",
+	"average-question-changes":
+		"This bar chart shows the average number of times the response to each question is changed." +
+		"This is the total number of times the response to this question was changed divided by the number of submissions that selected the question." + 
+		"When calculating the number of changes, the first entry to a question isn't counted, only subsequent changes.",
+	"submission-times":
+		"This bar chart shows the total amount of time spent answering questions per submission." +
+		"This metric only includes time spent on a submission while selecting a question."
 }
 
 // Creates input element that allows user to select audit file and analyzes selected file
@@ -83,7 +92,7 @@ function showAverageQuestionTimes() {
 					labelAngle: 0,
 				},
 			},
-			y: {title: "Average Response Time", field: "value", type: "quantitative"},
+			y: {title: "Average Response Time (seconds)", field: "value", type: "quantitative"},
 		},
 	};
 
@@ -113,6 +122,35 @@ function showAverageQuestionChanges() {
 				},
 			},
 			y: {title: "Average Response Changes", field: "value", type: "quantitative"},
+		},
+	};
+
+	vegaEmbed("#" + tag, vegaSpec);
+}
+
+// Displays time spent on each submission in a bar chart in the element with id "submission-times"
+// Should only be called after getAndProcessAuditData()
+function showSubmissionTimes() {
+	let groupedSubmissionQuestionTimes = reduceSubmissionQuestions(groupedAuditData, calculateQuestionTime);
+	let submissionTimes = calculateAggregateSubmissionValues(groupedSubmissionQuestionTimes);
+
+	const tag = "submission-times";
+
+	let vegaSpec = {
+		title: chartNames[tag],
+		width: "container",
+		data: {
+			values: submissionTimes,
+		},
+		mark: "bar",
+		encoding: {
+			x: {
+				title: "Submission", field: "instanceID", type: "nominal",
+				axis: {
+					labelAngle: 0,
+				},
+			},
+			y: {title: "Response Time (seconds)", field: "value", type: "quantitative"},
 		},
 	};
 
@@ -180,18 +218,18 @@ function reduceSubmissionQuestions(groupedData, fn) {
 // Takes submission data in the format returned by reduceSubmissionQuestions
 // Returns a list of dictionaries s.t. each dictionary maps "node" to question name and "value" to the average value of that question
 // across all submissions
-function calculateAverageQuestionValues(groupedSubmissionTimes) {
+function calculateAverageQuestionValues(groupedSubmissionValues) {
 	let questionAggregate = {};
 	let questionResponses = {};
 
-	for (const [instanceID, questions] of Object.entries(groupedSubmissionTimes)) {
-		for (const [node, time] of Object.entries(questions)) {
+	for (const [instanceID, questions] of Object.entries(groupedSubmissionValues)) {
+		for (const [node, value] of Object.entries(questions)) {
 			if (!(node in questionAggregate)) {
 				questionAggregate[node] = 0;
 				questionResponses[node] = 0;
 			}
 
-			questionAggregate[node] += time;
+			questionAggregate[node] += value;
 			questionResponses[node]++;
 		}
 	}
@@ -207,8 +245,29 @@ function calculateAverageQuestionValues(groupedSubmissionTimes) {
 	return questionAverages;
 }
 
+// Takes submission data in the format returned by reduceSubmissionQuestions
+// Returns a list of dictionaries s.t. each dictionary maps "instanceID" to a submission's instanceID and "value" to the aggregate value of all 
+// questions for that submission
+function calculateAggregateSubmissionValues(groupedSubmissionValues) {
+	let submissionAggregate = [];
+
+	for (const [instanceID, questions] of Object.entries(groupedSubmissionValues)) {
+		let entry = {};
+		entry["instanceID"] = instanceID;
+		entry["value"] = 0;
+
+		for (const [node, value] of Object.entries(questions)) {
+			entry["value"] += value;
+		}
+
+		submissionAggregate.push(entry);
+	}
+
+	return submissionAggregate;
+}
+
 // Takes a list of events corresponding to a single question in one submission
-// Returns the total response time for the question
+// Returns the total response time for the question in seconds
 function calculateQuestionTime(events) {
 	let totalTime = 0;
 	for (const event of events) {
@@ -217,7 +276,8 @@ function calculateQuestionTime(events) {
 		}
 	}
 
-	return totalTime;
+	// convert time from ms to s
+	return (totalTime / 1000);
 }
 
 // Takes a list of events corresponding to a single question in one submission
