@@ -13,7 +13,6 @@ const chartNames = {
 }
 
 // dictionary mapping chart tags to their descriptions
-// TODO: add meaningful descriptions
 const chartDescriptions = {
 	"average-question-time":
 		"This bar chart shows the average time spent responding to each question across submissions." +
@@ -27,7 +26,7 @@ const chartDescriptions = {
 		"This metric only includes time spent on a submission while selecting a question."
 }
 
-// Creates input element that allows user to select audit file and analyzes selected file
+// Creates input element that allows user to select audit file and processes selected file
 // Sets groupedAuditData variable
 // Clears the contents of all tags in chartTags so that old visualizations won't stick around when we change the dataset
 function getAndProcessAuditData() {
@@ -35,7 +34,6 @@ function getAndProcessAuditData() {
   	input.type = 'file';
 
 	input.onchange = e => { 
-
     	// get the file reference
     	let file = e.target.files[0]; 
 
@@ -145,7 +143,7 @@ function showSubmissionTimes() {
 		mark: "bar",
 		encoding: {
 			x: {
-				title: "Submission", field: "instanceID", type: "nominal",
+				title: "Submission", field: "instance ID", type: "nominal",
 				axis: {
 					labelAngle: 0,
 				},
@@ -169,11 +167,17 @@ function showSubmissionTimes() {
 //			"instanceID2": {...},
 //      }
 // Ignores any events that aren't associated with an instanceID and node (question name)
+// Truncates node names to remove "/data/" prefix and truncates instanceIDs to remove "uuid:" prefix
 function groupAuditData(auditData) {
 	let groupedData = {};
 	for (const event of auditData) {
-		let instanceID = event["instanceID"];
-		let node = event["node"];
+		// cut off "uuid:" portion of instanceID
+		let splitInstanceID = event["instance ID"].split(":");
+		let instanceID = splitInstanceID[splitInstanceID.length - 1];
+
+		// cut off "/data/" portion of question names
+		let splitNode = event["node"].split("/");
+		let node = splitNode[splitNode.length - 1];
 
 		// we skip events that aren't associated with an instanceID and a question name
 		if (instanceID && node) {
@@ -253,7 +257,7 @@ function calculateAggregateSubmissionValues(groupedSubmissionValues) {
 
 	for (const [instanceID, questions] of Object.entries(groupedSubmissionValues)) {
 		let entry = {};
-		entry["instanceID"] = instanceID;
+		entry["instance ID"] = instanceID;
 		entry["value"] = 0;
 
 		for (const [node, value] of Object.entries(questions)) {
