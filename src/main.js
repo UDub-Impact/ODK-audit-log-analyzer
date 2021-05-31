@@ -77,22 +77,43 @@ function showAverageQuestionTimes() {
 	const tag = "average-question-time";
 
 	let vegaSpec = {
-		title: chartNames[tag],
-		width: "container",
-		data: {
-			values: averageQuestionTimes,
+		"title": chartNames[tag],
+		"data": {
+			"values": averageQuestionTimes,
 		},
-		mark: "bar",
-		encoding: {
-			x: {
-				title: "Question", field: "node", type: "nominal",
-				axis: {
-					labelAngle: 0,
-				},
-			},
-			y: {title: "Average Response Time (seconds)", field: "value", type: "quantitative"},
+		"height": {"step": 50},
+		"mark": {
+		  "type": "bar",
+		  "yOffset": 5,
+		  "cornerRadiusEnd": 2,
+		  "height": {"band": 0.5}
 		},
-	};
+		"encoding": {
+		  "y": {
+			"title": false,
+			"field": "node",
+			"scale": {"padding": 0},
+			"axis": {
+			  "bandPosition": 0,
+			  "grid": true,
+			  "domain": false,
+			  "ticks": false,
+			  "labelAlign": "left",
+			  "labelBaseline": "middle",
+			  "labelPadding": -5,
+			  "labelOffset": -15,
+			  "titleX": 5,
+			  "titleY": -5,
+			  "titleAngle": 0,
+			  "titleAlign": "left"
+			}
+		  },
+		  "x": {"aggregate": "sum",
+				"field": "value",
+				"axis": {"grid": false},
+				"title": "Average Response Time (seconds)"}
+		}
+	  }
 
 	vegaEmbed("#" + tag, vegaSpec);
 }
@@ -106,22 +127,43 @@ function showAverageQuestionChanges() {
 	const tag = "average-question-changes";
 
 	let vegaSpec = {
-		title: chartNames[tag],
-		width: "container",
-		data: {
-			values: averageQuestionChanges,
+		"title": chartNames[tag],
+		"data": {
+			"values": averageQuestionChanges,
 		},
-		mark: "bar",
-		encoding: {
-			x: {
-				title: "Question", field: "node", type: "nominal",
-				axis: {
-					labelAngle: 0,
-				},
-			},
-			y: {title: "Average Response Changes", field: "value", type: "quantitative"},
+		"height": {"step": 50},
+		"mark": {
+		  "type": "bar",
+		  "yOffset": 5,
+		  "cornerRadiusEnd": 2,
+		  "height": {"band": 0.5}
 		},
-	};
+		"encoding": {
+		  "y": {
+			"title": false,
+			"field": "node",
+			"scale": {"padding": 0},
+			"axis": {
+			  "bandPosition": 0,
+			  "grid": true,
+			  "domain": false,
+			  "ticks": false,
+			  "labelAlign": "left",
+			  "labelBaseline": "middle",
+			  "labelPadding": -5,
+			  "labelOffset": -15,
+			  "titleX": 5,
+			  "titleY": -5,
+			  "titleAngle": 0,
+			  "titleAlign": "left"
+			}
+		  },
+		  "x": {"aggregate": "sum",
+				"field": "value",
+				"axis": {"grid": false},
+				"title": "Average Response Changes"}
+		}
+	  }
 
 	vegaEmbed("#" + tag, vegaSpec);
 }
@@ -135,22 +177,43 @@ function showSubmissionTimes() {
 	const tag = "submission-times";
 
 	let vegaSpec = {
-		title: chartNames[tag],
-		width: "container",
-		data: {
-			values: submissionTimes,
+		"title": chartNames[tag],
+		"data": {
+			"values": submissionTimes,
 		},
-		mark: "bar",
-		encoding: {
-			x: {
-				title: "Submission", field: "instance ID", type: "nominal",
-				axis: {
-					labelAngle: 0,
-				},
-			},
-			y: {title: "Response Time (seconds)", field: "value", type: "quantitative"},
+		"height": {"step": 50},
+		"mark": {
+		  "type": "bar",
+		  "yOffset": 5,
+		  "cornerRadiusEnd": 2,
+		  "height": {"band": 0.5}
 		},
-	};
+		"encoding": {
+		  "y": {
+			"title": false,
+			"field": "instance ID",
+			"scale": {"padding": 0},
+			"axis": {
+			  "bandPosition": 0,
+			  "grid": true,
+			  "domain": false,
+			  "ticks": false,
+			  "labelAlign": "left",
+			  "labelBaseline": "middle",
+			  "labelPadding": -5,
+			  "labelOffset": -15,
+			  "titleX": 5,
+			  "titleY": -5,
+			  "titleAngle": 0,
+			  "titleAlign": "left"
+			}
+		  },
+		  "x": {"aggregate": "sum",
+				"field": "value",
+				"axis": {"grid": false},
+				"title": "Response Time (seconds)"}
+		}
+	  }
 
 	vegaEmbed("#" + tag, vegaSpec);
 }
