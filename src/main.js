@@ -7,28 +7,114 @@ const chartTags = ["average-question-time", "average-question-changes", "submiss
 
 // dictionary mapping chart tags to the chart names that should be used
 const chartNames = {
-	"average-question-time": "Average Time Spent Responding Per Question",
+	"average-question-time":    "Average Time Spent Responding Per Question",
 	"average-question-changes": "Average Number of Response Changes Per Question",
-	"submission-times": "Time Spent Responding Per Submission",
+	"submission-times":         "Time Spent Responding Per Submission",
+}
+
+const chartFns = {
+	"average-question-time":    showAverageQuestionTimes,
+	"average-question-changes": showAverageQuestionChanges,
+	"submission-times":         showSubmissionTimes,
 }
 
 // dictionary mapping chart tags to their descriptions
 const chartDescriptions = {
 	"average-question-time":
-		"This bar chart shows the average time spent responding to each question across submissions." +
-		"This is the total time that the question has been selected across all submissions divided by the number of submissions that selected the question.",
+		"This bar chart shows the average time spent responding to each question across submissions. " +
+		"This is the total time that the question has been selected across all submissions divided by the number of submissions that selected the question. ",
 	"average-question-changes":
-		"This bar chart shows the average number of times the response to each question is changed." +
-		"This is the total number of times the response to this question was changed divided by the number of submissions that selected the question." + 
-		"When calculating the number of changes, the first entry to a question isn't counted, only subsequent changes.",
+		"This bar chart shows the average number of times the response to each question is changed. " +
+		"This is the total number of times the response to this question was changed divided by the number of submissions that selected the question. " + 
+		"When calculating the number of changes, the first entry to a question isn't counted, only subsequent changes. ",
 	"submission-times":
-		"This bar chart shows the total amount of time spent answering questions per submission." +
-		"This metric only includes time spent on a submission while selecting a question."
+		"This bar chart shows the total amount of time spent answering questions per submission. " +
+		"This metric only includes time spent on a submission while selecting a question. "
+}
+
+// Create dropdown and lists all available charts
+function createDropdown() {
+	// do nothing if the dropdown is already there
+	if (document.getElementById("chart-select")) {
+		return;
+	}
+
+	var select = document.createElement("select");
+    select.name = "chart-select";
+    select.id = "chart-select";
+
+	// when the dropdown selection changes, we clear all visualizations and render the newly selected one
+	select.onchange = (selectObj) => {
+		// clear current visualizations
+		for (const tag of chartTags) {
+			const node = document.getElementById(tag);
+			node.innerHTML = '';
+		}
+
+		// render selected chart
+		let selected = document.getElementById("chart-select").value;
+		showDescription(selected);
+		chartFns[selected]();
+	}
+
+	// add "None" option to dropdown
+    var option = document.createElement("option");
+    option.value = null;
+    option.text = "None";
+	option.selected = true;
+	option.disabled = true;
+	option.hidden = true;
+    select.appendChild(option);
+
+	// add chart options to dropdown
+    for (const chartTag of chartTags) {
+        var option = document.createElement("option");
+        option.value = chartTag;
+        option.text = chartNames[chartTag];
+        select.appendChild(option);
+    }
+ 
+	// add label
+    var label = document.createElement("label");
+    label.innerHTML = "Choose the chart to display"
+    label.htmlFor = "chart-select";
+	label.id = "label";
+	label.style = "font-family: Verdana; padding-right: 10px";
+ 
+	// append label and dropdown to html
+	let container = document.getElementById("container");
+	container.appendChild(label);
+	container.appendChild(select);
+}
+
+// Displays the description of the provided chart
+function showDescription(chartTag) {
+	let containerDiv = document.getElementById("container");
+
+	// remove old description
+	let oldDescription = document.getElementById("description");
+	if (oldDescription) {
+		oldDescription.innerHTML = "";
+		oldDescription.remove();
+	}
+
+	// create description
+	let descriptionDiv = document.createElement("div");
+	descriptionDiv.id = "description";
+	descriptionDiv.style = "width: 50%; padding-top: 10px;";
+
+	let description = document.createElement("p");
+	description.style = "font-family: Verdana; font-size: 0.8em;";
+	description.innerHTML = chartDescriptions[chartTag];
+
+	descriptionDiv.appendChild(description);
+	containerDiv.appendChild(descriptionDiv);
 }
 
 // Creates input element that allows user to select audit file and processes selected file
 // Sets groupedAuditData variable
 // Clears the contents of all tags in chartTags so that old visualizations won't stick around when we change the dataset
+// Also expands the dropdown menu so that a chart can be selected
 function getAndProcessAuditData() {
   	let input = document.createElement('input');
   	input.type = 'file';
@@ -58,6 +144,15 @@ function getAndProcessAuditData() {
 				const node = document.getElementById(tag);
 				node.innerHTML = '';
 			}
+
+			// remove old description
+			let oldDescription = document.getElementById("description");
+			if (oldDescription) {
+				oldDescription.innerHTML = "";
+				oldDescription.remove();
+			}
+
+			createDropdown();
     	}
     }
 

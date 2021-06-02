@@ -15,11 +15,15 @@
       <h1 style="font-family:Arial">Analyze Audit Logs</h1>
       <p style="font-family: Verdana">Client-side web tool to analyze ODK audit logs.</p>
       <button onclick="getAndProcessAuditData()">Open</button>
+      </div>
     </div>
 
+    <div id="container" style="padding-top:20px"></div>
+
     <div class="charts" style="padding-top: 10px;">
-      <div id="average-question-time" style="padding-top: 40px; float: left; clear: both; width: 50%"></div>
-      <div id="average-question-changes" style="padding-top: 20px; float: left; clear: both; width: 50%"></div> 
+      <div id="average-question-time" style="float: left; clear: both; width: 50%"></div>
+      <div id="average-question-changes" style="float: left; clear: both; width: 50%"></div> 
+      <div id="submission-times" style="float: left; clear: both; width: 50%"></div> 
     </div>
   </body>
 </html>
