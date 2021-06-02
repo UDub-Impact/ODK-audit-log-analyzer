@@ -39,12 +39,12 @@ function createDropdown() {
 		return;
 	}
 
-	var select = document.createElement("select");
-    select.name = "chart-select";
-    select.id = "chart-select";
+	let select = document.createElement("select");
+	select.name = "chart-select";
+	select.id = "chart-select";
 
 	// when the dropdown selection changes, we clear all visualizations and render the newly selected one
-	select.onchange = (selectObj) => {
+	select.onchange = () => {
 		// clear current visualizations
 		for (const tag of chartTags) {
 			const node = document.getElementById(tag);
@@ -59,12 +59,12 @@ function createDropdown() {
 
 	// add "None" option to dropdown
     var option = document.createElement("option");
-    option.value = null;
-    option.text = "None";
+	option.value = null;
+	option.text = "None";
 	option.selected = true;
 	option.disabled = true;
 	option.hidden = true;
-    select.appendChild(option);
+	select.appendChild(option);
 
 	// add chart options to dropdown
     for (const chartTag of chartTags) {
@@ -75,10 +75,9 @@ function createDropdown() {
     }
  
 	// add label
-    var label = document.createElement("label");
-    label.innerHTML = "Choose the chart to display"
-    label.htmlFor = "chart-select";
-	label.id = "label";
+	let label = document.createElement("label");
+	label.innerHTML = "Choose the chart to display"
+	label.htmlFor = "chart-select";
 	label.style = "font-family: Verdana; padding-right: 10px";
  
 	// append label and dropdown to html
@@ -94,7 +93,6 @@ function showDescription(chartTag) {
 	// remove old description
 	let oldDescription = document.getElementById("description");
 	if (oldDescription) {
-		oldDescription.innerHTML = "";
 		oldDescription.remove();
 	}
 
